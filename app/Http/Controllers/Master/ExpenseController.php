@@ -46,6 +46,8 @@ class ExpenseController extends Controller implements HasMiddleware
         Expense::create([
             "amount" => $request->amount,
             "date" => $request->date,
+            "payment_type" => (auth()->user()->role == 'Admin') ? $request->payment_type : 'DEBIT',
+            "pay_status" => (auth()->user()->role == 'Admin') ? $request->pay_status : '0',
             "description" => $request->description,
             "created_by" => auth()->id()
         ]);
@@ -71,6 +73,8 @@ class ExpenseController extends Controller implements HasMiddleware
             $expense->update([
                 "amount" => $request->amount,
                 "date" => $request->date,
+                "payment_type" => (auth()->user()->role == 'Admin') ? $request->payment_type : 'DEBIT',
+                "pay_status" => (auth()->user()->role == 'Admin') ? $request->pay_status : '0',
                 "description" => $request->description
             ]);
 
@@ -106,10 +110,12 @@ class ExpenseController extends Controller implements HasMiddleware
 
         $this->model( Expense::class);
 
-        $this->filter([
-            "created_by" => Auth::id(),
-        ]);
-
+        if(auth()->user()->role == 'Admin'){
+            $this->filter([
+                "created_by" => Auth::id(),
+            ]);
+        }
+            
         $editPermission = $this->hasPermission("expense-edit");
         $deletePermission = $this->hasPermission("expense-delete");
 
@@ -117,7 +123,7 @@ class ExpenseController extends Controller implements HasMiddleware
             $delete = route("master.expense.delete", ['expense' => $row->id]);
             $action = "";
 
-            if ($editPermission) {
+            if ($editPermission && $row->pay_status == "0") {
                 $action .= "
                             <a class='btn edit-btn  btn-action bg-success text-white me-2'
                                 data-id='{$row->id}'

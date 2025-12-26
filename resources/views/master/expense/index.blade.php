@@ -96,15 +96,31 @@
                     </div>
                     <div class="modal-body">
                         <div class="row mb-3 align-items-end">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label">Amount <span class="text-danger">*</span></label>
                                 <input class="form-control" type="text" name="amount" placeholder="Enter Expense Amount" />
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label">Date <span class="text-danger">*</span></label>
                                 <input class="form-control" type="date" name="date" placeholder="Enter Expense Date" />
                             </div>
-                            <div class="col-md-12 pt-2">
+                            @if(auth()->user()->hasRole('Admin'))
+                            <div class="col-md-4">
+                                <label class="form-label">Payment Type <span class="text-danger">*</span></label>
+                                <select class="form-control" name="payment_type">
+                                    <option value="CREDIT">CREDIT</option>
+                                    <option value="DEBIT">DEBIT</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Payment Type <span class="text-danger">*</span></label>
+                                <select class="form-control" name="pay_status">
+                                    <option value="0">Not Pay</option>
+                                    <option value="1">Payed</option>
+                                </select>
+                            </div>
+                            @endif
+                            <div class="col-md-8 pt-2">
                                 <label class="form-label">Description <span class="text-danger">*</span></label>
                                 <textarea class="form-control" name="description"></textarea>
                             </div>

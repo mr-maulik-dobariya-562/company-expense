@@ -64,11 +64,8 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, "created_by");
     }
 
-    public function scopeBranch($query)
+    public function expenses()
     {
-        // return $query->where('status', 'active');
-        if (auth()->check()) {
-            return $query->where('branch_id', session('branch_id'));
-        }
+        return $this->hasMany(Expense::class, 'created_by');
     }
 }
