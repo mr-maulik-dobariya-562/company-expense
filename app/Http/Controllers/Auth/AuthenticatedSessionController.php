@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Models\LogActivity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,7 +36,6 @@ class AuthenticatedSessionController extends Controller
         $log['ip'] = FacadesRequest::ip();
         $log['agent'] = FacadesRequest::header('user-agent');
         $log['user_id'] = auth()->check() ? auth()->user()->id : 1;
-        LogActivity::create($log);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -54,7 +52,6 @@ class AuthenticatedSessionController extends Controller
         $log['ip'] = FacadesRequest::ip();
         $log['agent'] = FacadesRequest::header('user-agent');
         $log['user_id'] = auth()->check() ? auth()->user()->id : 1;
-        LogActivity::create($log);
 
         Auth::guard('web')->logout();
 

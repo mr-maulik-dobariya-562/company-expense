@@ -5,31 +5,6 @@
         <li class="nav-item">
             <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
         </li>
-        @if (auth()->user()->hasPermissionTo('sale-order-box'))
-            <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link" href="{{ route('getSaleOrderData') }}">Sale Order</a>
-            </li>
-        @endif
-        @if (auth()->user()->hasPermissionTo('sale-box'))
-            <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link" href="{{ route('getSaleData') }}">Sale Invoice</a>
-            </li>
-        @endif
-        @if (auth()->user()->hasPermissionTo('purchase-box'))
-            <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link" href="{{ route('getPurchaseData') }}">Purchase Invoice</a>
-            </li>
-        @endif
-        @if (auth()->user()->hasPermissionTo('production-sale-order-box'))
-            <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link" href="{{ route('getProductionSaleOrderData') }}">Production Sale Order</a>
-            </li>
-        @endif
-        @if (auth()->user()->hasPermissionTo('boq-approve-report'))
-            <li class="nav-item d-none d-sm-inline-block">
-                <a class="nav-link" href="{{ route('boq-approve') }}">Approve Report</a>
-            </li>
-        @endif
     </ul>
 
     <!-- Right navbar links -->

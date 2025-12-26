@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Site;
 use App\Models\Buyer;
-use App\Models\LogActivity;
 use App\Models\Pr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -73,7 +72,6 @@ class CommonController extends Controller
             'vch_no' => $request->export_type,
             'user_id' => auth()->check() ? auth()->user()->id : 1
         ];
-        LogActivity::create($log);
 
         return true;
     }

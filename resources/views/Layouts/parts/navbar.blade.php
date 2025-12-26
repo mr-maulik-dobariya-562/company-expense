@@ -8,7 +8,7 @@
       </a> -->
       <a href="{{ route('dashboard') }}" class="brand-link" style="padding:initial !important;background-color: white;">
           <img src="{{ asset('assets') }}/Picture1.svg" alt="AdminLTE Logo" class="brand-image"
-              style="opacity: .8;max-height:100%;margin-left:0px;margin-right:0px;float:none;">
+              style="opacity: .8;max-height:80px;margin-left:0px;margin-right:0px;float:none;">
           <span class="brand-text font-weight-light">&nbsp;&nbsp;</span>
       </a>
       <!-- Sidebar -->
