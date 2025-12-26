@@ -16,6 +16,7 @@ return new class extends Migration
             $table->decimal('amount',15,2);
             $table->date('date');
             $table->enum('pay_status', ['0', '1'])->default('0');
+            $table->enum('type', ['CREDIT', 'DEBIT'])->default('DEBIT');
             $table->longText('description')->nullable();
             $table->foreignId('created_by')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
             $table->datetime("created_at")->useCurrent();
