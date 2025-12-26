@@ -8,6 +8,7 @@ use App\Traits\DataTable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 
 class ExpenseController extends Controller implements HasMiddleware
 {
@@ -105,6 +106,9 @@ class ExpenseController extends Controller implements HasMiddleware
 
         $this->model( Expense::class);
 
+        $this->filter([
+            "created_by" => Auth::id(),
+        ]);
 
         $editPermission = $this->hasPermission("expense-edit");
         $deletePermission = $this->hasPermission("expense-delete");

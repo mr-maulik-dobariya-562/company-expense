@@ -10,6 +10,7 @@ use App\Traits\DataTable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 
 
@@ -48,15 +49,7 @@ class UserController extends Controller implements HasMiddleware
             "password" => "required|min:6",
             "role" => "required",
             "status" => "required|in:ACTIVE,INACTIVE",
-            "photo" => "nullable|image|mimes:jpeg,jpg,png,gif,svg|max:2048",
         ]);
-
-        $photoName = null;
-        if ($request->hasFile('photo')) {
-            $image = $request->file('photo');
-            $photoName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/user_photos/'), $photoName); // Move image to public/uploads/user_photos
-        }
 
         $user = User::create([
             "name" => $request->name,
@@ -65,7 +58,6 @@ class UserController extends Controller implements HasMiddleware
             "username" => trim(preg_replace('/\s+/', '', $request->username)),
             "password" => bcrypt($request->password),
             "status" => $request->status,
-            "photo" => $photoName,
             "created_by" => auth()->id()
         ]);
 
@@ -91,26 +83,10 @@ class UserController extends Controller implements HasMiddleware
             "password" => "nullable|min:6",
             "role" => "required",
             "status" => "required|in:ACTIVE,INACTIVE",
-            "photo" => "nullable|image|mimes:jpeg,jpg,png,gif,svg|max:2048",
         ]);
 
         // assign role to user
         $user->syncRoles($request->role);
-
-        if ($request->hasFile('photo')) {
-            // Delete old photo if exists
-            if ($user->photo && file_exists(public_path('uploads/user_photos/' . $user->photo))) {
-                unlink(public_path('uploads/user_photos/' . $user->photo));
-            }
-
-            // Upload new photo
-            $image = $request->file('photo');
-            $photoName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads/user_photos/'), $photoName);
-        } else {
-            // Keep existing photo if no new upload
-            $photoName = $user->photo;
-        }
 
         $user->update([
             "name" => $request->name,
@@ -119,7 +95,6 @@ class UserController extends Controller implements HasMiddleware
             "username" => trim(preg_replace('/\s+/', '', $request->username)),
             "password" => $request->password ? bcrypt($request->password) : $user->password,
             "status" => $request->status,
-            "photo" => $photoName,
             "created_by" => auth()->id()
         ]);
         if ($request->ajax()) {
@@ -194,7 +169,6 @@ class UserController extends Controller implements HasMiddleware
                 "username" => $row->username,
                 "status" => $row->status,
                 "role" => $row->getRoleNames()->implode(", "),
-                "photo" => $row->photo ? "<img src='" . asset('uploads/user_photos/' . $row->photo) . "' width='100' height='100'>" : '--',
                 "created_by" => $row->createdBy?->displayName(),
                 "created_at" => $row->created_at ? $row->created_at->format('d/m/Y H:i:s') : '',
                 "updated_at" => $row->updated_at ? $row->updated_at->format('d/m/Y H:i:s') : '',

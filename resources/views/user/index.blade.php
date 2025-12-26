@@ -63,7 +63,6 @@
                                         <th data-name="email">Email</th>
                                         <th data-name="status">Status</th>
                                         <th data-name="role">Role</th>
-                                        <th data-name="photo">Photo</th>
                                         <th data-name="created_by">Created By</th>
                                         <th data-name="created_at">Created At</th>
                                         <th data-name="updated_at">Last Update At</th>
@@ -135,10 +134,6 @@
                                         <option value="{{ $status }}">{{ $status }}</option>
                                     @endforeach
                                 </select>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="form-label">Photo</label>
-                                <input class="form-control" type="file" name="photo" accept=".png, .jpg, .jpeg">
                             </div>
                         </fieldset>
                     </div>
