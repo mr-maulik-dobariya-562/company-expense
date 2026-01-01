@@ -46,7 +46,7 @@ class ExpenseController extends Controller implements HasMiddleware
         Expense::create([
             "amount" => $request->amount,
             "date" => $request->date,
-            "payment_type" => (auth()->user()->role == 'Admin') ? $request->payment_type : 'DEBIT',
+            "type" => (auth()->user()->role == 'Admin') ? $request->payment_type : 'DEBIT',
             "pay_status" => (auth()->user()->role == 'Admin') ? $request->pay_status : '0',
             "description" => $request->description,
             "created_by" => auth()->id()
@@ -73,7 +73,7 @@ class ExpenseController extends Controller implements HasMiddleware
             $expense->update([
                 "amount" => $request->amount,
                 "date" => $request->date,
-                "payment_type" => (auth()->user()->role == 'Admin') ? $request->payment_type : 'DEBIT',
+                "type" => (auth()->user()->role == 'Admin') ? $request->payment_type : 'DEBIT',
                 "pay_status" => (auth()->user()->role == 'Admin') ? $request->pay_status : '0',
                 "description" => $request->description
             ]);
