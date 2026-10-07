@@ -1,0 +1,226 @@
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+.amount {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.empty-state {
+    color: #6c757d;
+    padding: 24px 12px;
+    text-align: center;
+}
+
+.empty-state i {
+    display: block;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.mobile-record-card {
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .05);
+    margin-bottom: 12px;
+}
+
+.mobile-record-card .label {
+    color: #6c757d;
+    display: block;
+    font-size: 11px;
+    line-height: 1.2;
+    margin-bottom: 2px;
+}
+
+.mobile-record-card .value {
+    color: #212529;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mobile-record-card .actions {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    margin-top: 12px;
+}
+
+.mobile-bottom-nav {
+    display: none;
+}
+
+.login-page {
+    background: linear-gradient(180deg, #eef7f5 0%, #f4f6f9 100%);
+    min-height: 100vh;
+    padding: env(safe-area-inset-top) 14px env(safe-area-inset-bottom);
+}
+
+.login-box .card {
+    border-radius: 16px;
+    box-shadow: 0 14px 32px rgba(15, 23, 42, .12);
+}
+
+@media (max-width: 767.98px) {
+    body.sidebar-mini .content-wrapper,
+    body.sidebar-mini .main-footer {
+        margin-left: 0 !important;
+    }
+
+    .main-header {
+        min-height: 48px;
+        padding-top: env(safe-area-inset-top);
+    }
+
+    .content-wrapper {
+        padding-bottom: calc(78px + env(safe-area-inset-bottom));
+    }
+
+    .content-header {
+        padding: 10px 12px;
+    }
+
+    .content-header .container-fluid {
+        align-items: flex-start !important;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .content-header h1 {
+        font-size: 21px;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .content {
+        padding: 0 10px;
+    }
+
+    .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .card {
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .card-body,
+    .card-footer {
+        padding: 12px;
+    }
+
+    .small-box {
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+
+    .small-box .inner {
+        padding: 12px;
+    }
+
+    .small-box h3,
+    .small-box h4 {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+
+    .small-box p {
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    .small-box .icon {
+        font-size: 54px;
+        top: 8px;
+    }
+
+    .btn {
+        min-height: 40px;
+    }
+
+    .btn-sm {
+        min-height: 36px;
+        padding: .35rem .6rem;
+    }
+
+    form.card .row > [class*="col-"],
+    form.mb-3 > .form-control,
+    form.mb-3 > .btn,
+    form.mb-3 > a.btn {
+        margin-bottom: 8px;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    form.card .btn,
+    form.card a.btn,
+    .content-header a.btn,
+    .card-body > form .btn,
+    .card-body > form a.btn {
+        width: 100%;
+    }
+
+    .alert {
+        border-radius: 10px;
+        font-size: 14px;
+        margin-bottom: 10px;
+        padding: 10px 12px;
+    }
+
+    .main-footer {
+        display: none;
+    }
+
+    .mobile-bottom-nav {
+        background: #fff;
+        border-top: 1px solid #dee2e6;
+        bottom: 0;
+        box-shadow: 0 -8px 20px rgba(15, 23, 42, .08);
+        display: flex;
+        left: 0;
+        padding: 6px 0 calc(6px + env(safe-area-inset-bottom));
+        position: fixed;
+        right: 0;
+        z-index: 1050;
+    }
+
+    .mobile-bottom-nav a {
+        color: #59636f;
+        flex: 1;
+        font-size: 11px;
+        line-height: 1.15;
+        padding: 4px 2px;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .mobile-bottom-nav i {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 3px;
+    }
+
+    .mobile-bottom-nav a.active {
+        color: #007bff;
+        font-weight: 700;
+    }
+
+    .login-box {
+        margin-top: 0;
+        max-width: 390px;
+        width: 100%;
+    }
+
+    .login-logo {
+        line-height: 1.2;
+        margin-bottom: 16px;
+    }
+
+    .login-card-body {
+        border-radius: 16px;
+        padding: 22px 18px;
+    }
+}

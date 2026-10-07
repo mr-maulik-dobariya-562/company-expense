@@ -1,66 +1,121 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Raging Developers Expense Management
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel web application for company expense tracking, company funds, employee running settlements, payment history, and PWA install support.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- AdminLTE Bootstrap UI for login, admin panel, and employee panel
+- Role-based access for `admin` and `employee`
+- Active/inactive account protection
+- Employee expense CRUD with owner-only access
+- Admin employee management
+- Admin expense filters and approve/reject actions
+- Company fund entry and editing by fund date
+- Employee-wise running settlement calculation
+- Full or partial payment for pending receivable amount
+- Admin and employee payment history
+- Mobile-first PWA layout with compact cards, bottom navigation, safe-area spacing, and offline page
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.2+
+- Composer
+- Node.js and npm
+- MySQL
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Create the database:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```sql
+CREATE DATABASE raging_expense_management CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
 
-## Laravel Sponsors
+Set database credentials in `.env`:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=raging_expense_management
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-### Premium Partners
+Run migrations and seeders:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+php artisan migrate --seed
+```
 
-## Contributing
+Start the app:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+npm run dev
+php artisan serve
+```
 
-## Code of Conduct
+Open `http://127.0.0.1:8000`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Default Login Credentials
 
-## Security Vulnerabilities
+Admin:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- Email: `admin@ragingdevelopers.com`
+- Password: `password`
 
-## License
+Employees:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- Email: `employee1@ragingdevelopers.com`
+- Password: `password`
+
+Employee seed users are created from `employee1@ragingdevelopers.com` to `employee8@ragingdevelopers.com`.
+
+## Settlement Logic
+
+Settlement is now based on running balance:
+
+- Employee Pending = Total Approved Expenses - Total Payments Received.
+- Company Balance = Total Company Funds Added - Total Payments Made.
+- Admin can add one fund entry for one month, multiple months, or any date.
+- Admin can pay full pending balance of an employee, and after payment employee pending becomes &#8377;0.
+
+Company funds are reduced only when an employee payment is made. Expenses do not directly deduct from company funds.
+
+## Session Lifetime
+
+Login sessions are configured to stay active for 1 year:
+
+- `SESSION_LIFETIME=525600`
+- `config/session.php` defaults to `525600` minutes
+- `expire_on_close` is disabled so closing the browser does not immediately log the user out
+- The login form sends `remember=1`, so Laravel's remember login support is used without removing CSRF or auth middleware
+
+## Mobile PWA UI
+
+The app keeps AdminLTE on desktop and adds mobile-first PWA refinements:
+
+- `public/css/custom-mobile.css` adds compact spacing, safe-area padding, tap-friendly buttons, mobile cards, and bottom navigation
+- `resources/views/layouts/partials/mobile-bottom-nav.blade.php` shows role-aware mobile navigation
+- Admin and employee dashboards use compact cards on mobile
+- Expenses, employees, company funds, settlements, and payments use desktop tables on larger screens and card-style records on mobile
+- The manifest uses `display: standalone`, `start_url: /`, portrait orientation, and Raging Developers branding
+- The service worker uses cache-first behavior for static assets and network-first behavior for authenticated pages
+
+## PWA Notes
+
+The app includes:
+
+- `public/manifest.json`
+- `public/service-worker.js`
+- `public/icons/icon.svg`
+- `resources/views/offline.blade.php`
+
+The service worker caches basic pages/assets and serves the offline page when a network request fails.

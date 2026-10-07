@@ -2,39 +2,35 @@
 
 namespace App\Models;
 
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, HasApiTokens;
+    /** @use HasFactory<UserFactory> */
+    use HasFactory, Notifiable;
 
-    const TOKEN_NAME = "spectacase";
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $fillable = [
         'name',
         'email',
-        'username',
+        'phone',
+        'role',
+        'status',
         'password',
-        "mobile",
-        "photo",
-        "location_id",
-        "branch_id",
-        "created_by",
-        "branch_id"
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var array<int, string>
+     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -54,18 +50,38 @@ class User extends Authenticatable
         ];
     }
 
-    public function displayName()
-    {
-        return $this->name;
-    }
-
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, "created_by");
-    }
-
     public function expenses()
     {
-        return $this->hasMany(Expense::class, 'created_by');
+        return $this->hasMany(Expense::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function paidPayments()
+    {
+        return $this->hasMany(Payment::class, 'paid_by');
+    }
+
+    public function createdMonthlyFunds()
+    {
+        return $this->hasMany(MonthlyFund::class, 'created_by');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->role === 'employee';
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
     }
 }

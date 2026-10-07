@@ -1,47 +1,63 @@
 <?php
 
-use App\Http\Controllers\{
-    CommonController,
-    DashboardController,
-    User\RoleController,
-    User\UserController,
-};
-use App\Http\Controllers\Master\ExpenseController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\EmployeeController as AdminEmployeeController;
+use App\Http\Controllers\Admin\ExpenseController as AdminExpenseController;
+use App\Http\Controllers\Admin\MonthlyFundController as AdminMonthlyFundController;
+use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\SettlementController as AdminSettlementController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
+use App\Http\Controllers\Employee\ExpenseController as EmployeeExpenseController;
+use App\Http\Controllers\Employee\PaymentController as EmployeePaymentController;
+use App\Http\Controllers\Employee\SettlementController as EmployeeSettlementController;
 use Illuminate\Support\Facades\Route;
-use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Exp;
 
-Route::middleware('auth')->group(function () {
+Route::get('/', function () {
+    $user = auth()->user();
 
-    /* Dashboard Routes */
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    if ($user?->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
 
-    /* Master Routes */
-    Route::prefix('master')->name('master.')->group(function () {
+    if ($user?->role === 'employee') {
+        return redirect()->route('employee.dashboard');
+    }
 
-        /* Work Category Routes */
-        Route::resource('expense', ExpenseController::class);
-        Route::post('expense/get-list', [ExpenseController::class, "getList"])->name("expense.getList");
-        Route::get('expense/delete/{expense}', [ExpenseController::class, "destroy"])->name("expense.delete");
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
 
-    });
-
-    /* User Management Routes */
-    Route::prefix('manage-user')->name("users.")->group(function () {
-        /* Users */
-        Route::resource('/', UserController::class)->except(['update']);
-        Route::put('users/{user}', [UserController::class, "update"])->name("update");
-        Route::post('get-list', [UserController::class, "getList"])->name("getList");
-        Route::get('delete/{user}', [UserController::class, "destroy"])->name("user.delete");
-
-        /* Roles & Permissions */
-        Route::resource('role', RoleController::class);
-        Route::post('role/get-list', [RoleController::class, "getList"])->name("role.getList");
-        Route::get('role/delete/{role}', [RoleController::class, "destroy"])->name("role.delete");
-    });
-});
-Route::fallback(function () {
-    return view('404-page');
+    return redirect()->route('login');
 });
 
-/* Authentication Routes  */
-require __DIR__ . '/auth.php';
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+
+Route::middleware('guest')->group(function () {
+    Route::post('/login', [LoginController::class, 'login'])->name('login.store');
+});
+
+Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
+Route::view('/offline', 'offline')->name('offline');
+
+Route::middleware(['auth', 'active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+    Route::resource('/employees', AdminEmployeeController::class);
+    Route::get('/expenses', [AdminExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('/expenses/{expense}', [AdminExpenseController::class, 'show'])->name('expenses.show');
+    Route::patch('/expenses/{expense}/status', [AdminExpenseController::class, 'updateStatus'])->name('expenses.status');
+    Route::redirect('/monthly-funds', '/admin/company-funds');
+    Route::resource('/company-funds', AdminMonthlyFundController::class)
+        ->names('monthly-funds')
+        ->parameters(['company-funds' => 'monthlyFund']);
+    Route::get('/settlements', [AdminSettlementController::class, 'index'])->name('settlements.index');
+    Route::post('/settlements/{employee}/pay', [AdminSettlementController::class, 'pay'])->name('settlements.pay');
+    Route::get('/payments', [AdminPaymentController::class, 'index'])->name('payments.index');
+});
+
+Route::middleware(['auth', 'active', 'role:employee'])->prefix('employee')->name('employee.')->group(function () {
+    Route::get('/dashboard', EmployeeDashboardController::class)->name('dashboard');
+    Route::resource('/expenses', EmployeeExpenseController::class);
+    Route::get('/settlements', [EmployeeSettlementController::class, 'index'])->name('settlements.index');
+    Route::get('/payments', [EmployeePaymentController::class, 'index'])->name('payments.index');
+});

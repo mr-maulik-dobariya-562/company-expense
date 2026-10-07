@@ -2,17 +2,31 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'user_id',
+        'title',
+        'description',
+        'amount',
+        'expense_date',
+        'month_date',
+        'status',
+    ];
 
-    protected $guarded = [];
-    
-    public function createdBy()
+    protected function casts(): array
     {
-        return $this->belongsTo(User::class, "created_by");
+        return [
+            'amount' => 'decimal:2',
+            'expense_date' => 'date',
+            'month_date' => 'date',
+        ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

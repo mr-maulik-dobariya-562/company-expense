@@ -1,48 +1,35 @@
 <?php
 
-use App\Console\Commands\SendMRNReminderEmails;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        api: __DIR__ . '/../routes/api.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+    ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-            'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
-            'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
-        $middleware->validateCsrfTokens(except: [
-            'api/*',
-        ]);
+
+        $middleware->redirectUsersTo(function () {
+            $user = auth()->user();
+
+            if ($user?->role === 'admin') {
+                return route('admin.dashboard');
+            }
+
+            if ($user?->role === 'employee') {
+                return route('employee.dashboard');
+            }
+
+            return route('login');
+        });
     })
-    ->withCommands([
-        SendMRNReminderEmails::class
-    ])
-    ->withExceptions(function (Exceptions $exceptions) {
+    ->withExceptions(function (Exceptions $exceptions): void {
         //
-        // $exceptions->render(function (NotFoundHttpException $e, Request $request) {
-        //     if ($request->is('api/*')) {
-        //         return response()->json([
-        //             'message' => 'Record not found.'
-        //         ], 404);
-        //     }
-        // });
-        // $exceptions->render(function (ValidationException $e,Request $request) {
-        //     return response()->json([
-        //         'message' => 'Validation failed',
-        //         'errors'  => $e->errors(),
-        //     ], 422);
-        // });
     })->create();
