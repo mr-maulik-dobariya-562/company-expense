@@ -1,15 +1,21 @@
-const CACHE_NAME = 'rd-expense-v2';
+const CACHE_NAME = 'rd-expense-v11';
 const OFFLINE_URL = '/offline';
 const STATIC_ASSETS = [
   OFFLINE_URL,
   '/manifest.json',
-  '/css/custom-mobile.css',
+  '/css/glass.css',
+  '/js/theme.js',
+  '/css/shell.css',
+  '/js/shell.js',
+  '/css/motion.css',
+  '/js/login.js',
+  '/js/sfx.js',
+  '/js/expense-form.js',
   '/icons/icon.svg',
-  'https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css',
+  'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.min.css',
   'https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js',
   'https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js',
-  'https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js'
 ];
 
 self.addEventListener('install', event => {
@@ -35,6 +41,7 @@ self.addEventListener('fetch', event => {
 
   const requestUrl = new URL(event.request.url);
   const isStatic = requestUrl.pathname.startsWith('/css/')
+    || requestUrl.pathname.startsWith('/js/')
     || requestUrl.pathname.startsWith('/icons/')
     || requestUrl.pathname === '/manifest.json'
     || requestUrl.hostname === 'cdn.jsdelivr.net';

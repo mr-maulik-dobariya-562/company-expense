@@ -49,7 +49,16 @@ class ExpenseController extends Controller
         $data['user_id'] = $request->user()->id;
         $data['month_date'] = Carbon::parse($data['expense_date'])->startOfMonth()->toDateString();
         $data['status'] = 'approved';
-        Expense::create($data);
+        $expense = Expense::create($data);
+
+        // The create form posts via AJAX so it can play the "added" animation + sound first.
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Expense added successfully.',
+                'expense' => ['title' => $expense->title, 'amount' => (float) $expense->amount],
+                'redirect' => route('employee.expenses.index'),
+            ]);
+        }
 
         return redirect()->route('employee.expenses.index')->with('success', 'Expense added successfully.');
     }

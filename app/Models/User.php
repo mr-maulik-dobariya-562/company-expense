@@ -13,6 +13,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    /** Format of a UPI ID, e.g. name@okaxis or 9876543210@ybl */
+    public const UPI_REGEX = '/^[a-zA-Z0-9._-]{2,256}@[a-zA-Z][a-zA-Z0-9]{1,63}$/';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+        'upi_id',
         'role',
         'status',
         'password',

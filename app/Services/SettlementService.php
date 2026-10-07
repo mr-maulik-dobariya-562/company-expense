@@ -65,27 +65,38 @@ class SettlementService
 
     public function getAllEmployeeOutstanding(): Collection
     {
+        // One query with aggregate sub-selects instead of two queries per employee.
         return User::where('role', 'employee')
             ->where('status', 'active')
             ->orderBy('name')
+            ->withSum(['expenses as approved_expenses_total' => fn ($q) => $q->where('status', 'approved')], 'amount')
+            ->withSum('payments as payments_total', 'amount')
             ->get()
             ->map(function (User $employee) {
-                $outstanding = $this->getEmployeeOutstanding($employee->id);
+                $totalExpenses = (float) $employee->approved_expenses_total;
+                $totalPaid = (float) $employee->payments_total;
+                $pending = max($totalExpenses - $totalPaid, 0);
 
                 return [
                     'employee' => $employee,
                     'name' => $employee->name,
-                    'total_expenses' => $outstanding['total_expenses'],
-                    'total_paid' => $outstanding['total_paid'],
-                    'pending_receivable' => $outstanding['pending_receivable'],
-                    'payment_status' => $outstanding['pending_receivable'] > 0 ? 'Pending' : 'Paid',
+                    'total_expenses' => $totalExpenses,
+                    'total_paid' => $totalPaid,
+                    'pending_receivable' => $pending,
+                    'payment_status' => $pending > 0 ? 'Pending' : 'Paid',
                 ];
             });
     }
 
     public function getTotalPendingEmployeePayable(): float
     {
-        return (float) $this->getAllEmployeeOutstanding()->sum('pending_receivable');
+        // Same per-employee "never below zero" rule, computed in a single query.
+        return (float) User::where('role', 'employee')
+            ->where('status', 'active')
+            ->withSum(['expenses as approved_expenses_total' => fn ($q) => $q->where('status', 'approved')], 'amount')
+            ->withSum('payments as payments_total', 'amount')
+            ->get(['id'])
+            ->sum(fn (User $e) => max((float) $e->approved_expenses_total - (float) $e->payments_total, 0));
     }
 
     public function getEmployeeMonthlyExpenseReport(int $userId): Collection

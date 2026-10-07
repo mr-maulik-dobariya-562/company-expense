@@ -36,6 +36,7 @@ class EmployeeController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:30'],
+            'upi_id' => ['required', 'string', 'max:100', 'regex:'.User::UPI_REGEX],
             'password' => ['required', 'string', 'min:8'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ]);
@@ -75,6 +76,7 @@ class EmployeeController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($employee->id)],
             'phone' => ['nullable', 'string', 'max:30'],
+            'upi_id' => ['required', 'string', 'max:100', 'regex:'.User::UPI_REGEX],
             'password' => ['nullable', 'string', 'min:8'],
             'status' => ['required', Rule::in(['active', 'inactive'])],
         ]);

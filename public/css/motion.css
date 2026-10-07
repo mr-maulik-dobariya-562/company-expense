@@ -1,0 +1,248 @@
+/* ==========================================================
+   Motion system — login unlock, page entrance, stagger,
+   micro-interactions, logout exit, page-to-page transitions.
+   Everything is disabled under prefers-reduced-motion.
+   ========================================================== */
+:root {
+    --spring: cubic-bezier(.2, .9, .25, 1.15);
+    --smooth: cubic-bezier(.22, 1, .36, 1);
+}
+
+/* ---------- Login: iPhone-style "fall into place" entrance ---------- */
+.login-page { overflow: hidden; }
+.login-stage { width: 100%; display: grid; place-items: center; perspective: 1200px; }
+.li-item { opacity: 0; }
+.li-item {
+    animation: li-in .7s var(--smooth) forwards;
+    animation-delay: calc(var(--d, 0) * 70ms + 80ms);
+}
+.login-box .card.li-item { animation-name: li-card-in; animation-duration: .8s; }
+@keyframes li-in { from { opacity: 0; transform: translateY(18px) scale(.98); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes li-card-in { from { opacity: 0; transform: scale(1.08); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
+
+.lock-badge {
+    width: 64px; height: 64px; margin: 0 auto 12px; border-radius: 20px; display: grid; place-items: center;
+    background: linear-gradient(135deg, #6366f1, #ec4899); box-shadow: 0 12px 30px rgba(99, 102, 241, .45);
+}
+.lock-svg { width: 34px; height: 34px; overflow: visible; }
+.lock-shackle { fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; transform-origin: 33px 22px; transition: transform .45s var(--spring); }
+.lock-body { fill: #fff; }
+.lock-hole { fill: #7c3aed; }
+
+.login-btn .lb-busy { display: none; }
+.login-btn.is-busy .lb-text { display: none; }
+.login-btn.is-busy .lb-busy { display: inline-flex; align-items: center; justify-content: center; }
+.login-card-body.shake { animation: shake-x .45s ease; }
+@keyframes shake-x { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+
+/* Unlock sequence: shackle pops, badge pulses, the whole stage zooms toward the viewer and blurs away */
+html.is-unlocking .lock-shackle { transform: translateY(-5px) rotate(28deg); }
+html.is-unlocking .lock-badge { animation: badge-pulse .5s var(--spring); }
+html.is-unlocking .login-stage { animation: stage-out 1.1s var(--smooth) .35s forwards; }
+html.is-unlocking .login-theme-toggle { transition: opacity .3s; opacity: 0; }
+@keyframes badge-pulse { 50% { transform: scale(1.12); } }
+@keyframes stage-out { to { opacity: 0; transform: scale(1.35); filter: blur(14px); } }
+
+.unlock-welcome {
+    position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; justify-items: center; gap: 14px;
+    pointer-events: none; opacity: 0; transform: scale(.85); transition: opacity .35s ease, transform .5s var(--spring);
+}
+.unlock-welcome[hidden] { display: none; }
+.unlock-welcome.show { opacity: 1; transform: none; }
+.uw-check {
+    width: 76px; height: 76px; border-radius: 50%; display: grid; place-items: center; font-size: 30px; color: #fff;
+    background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 16px 40px rgba(16, 185, 129, .45);
+}
+.uw-text { font-size: 1.4rem; font-weight: 800; color: var(--g-text); }
+
+/* ---------- App: arrival right after login (continues the zoom) ---------- */
+html.enter-from-login .sidebar,
+html.enter-from-login .topbar,
+html.enter-from-login .dock { animation: shell-in .7s var(--smooth) backwards; }
+html.enter-from-login .app-content { animation: content-zoom-in .8s var(--smooth) backwards; }
+@keyframes shell-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes content-zoom-in { from { opacity: 0; transform: scale(.94); filter: blur(10px); } to { opacity: 1; transform: none; filter: blur(0); } }
+
+/* ---------- Page entrance: staggered rise ---------- */
+.app-content > .page-head,
+.app-content > .alert,
+.app-content .stat-card,
+.app-content > .card,
+.app-content > form.card,
+.app-content > .row > [class*="col"] > .card,
+.app-content .mobile-record-card,
+.app-content > .d-md-none > .card {
+    animation: rise-in .55s var(--smooth) backwards;
+}
+.app-content > .page-head { animation-duration: .45s; }
+.app-content .stat-card:nth-child(1) { animation-delay: .04s; }
+.app-content .stat-card:nth-child(2) { animation-delay: .08s; }
+.app-content .stat-card:nth-child(3) { animation-delay: .12s; }
+.app-content .stat-card:nth-child(4) { animation-delay: .16s; }
+.app-content .stat-card:nth-child(5) { animation-delay: .2s; }
+.app-content .stat-card:nth-child(6) { animation-delay: .24s; }
+.app-content .stat-card:nth-child(7) { animation-delay: .28s; }
+.app-content > .card, .app-content > form.card { animation-delay: .12s; }
+.app-content > .card ~ .card { animation-delay: .2s; }
+.app-content .mobile-record-card:nth-child(1) { animation-delay: .08s; }
+.app-content .mobile-record-card:nth-child(2) { animation-delay: .12s; }
+.app-content .mobile-record-card:nth-child(3) { animation-delay: .16s; }
+.app-content .mobile-record-card:nth-child(4) { animation-delay: .2s; }
+.app-content .mobile-record-card:nth-child(n+5) { animation-delay: .24s; }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Table rows cascade in */
+.app-content .table tbody tr { animation: row-in .45s var(--smooth) backwards; }
+.app-content .table tbody tr:nth-child(1) { animation-delay: .14s; }
+.app-content .table tbody tr:nth-child(2) { animation-delay: .17s; }
+.app-content .table tbody tr:nth-child(3) { animation-delay: .2s; }
+.app-content .table tbody tr:nth-child(4) { animation-delay: .23s; }
+.app-content .table tbody tr:nth-child(5) { animation-delay: .26s; }
+.app-content .table tbody tr:nth-child(6) { animation-delay: .29s; }
+.app-content .table tbody tr:nth-child(7) { animation-delay: .32s; }
+.app-content .table tbody tr:nth-child(n+8) { animation-delay: .35s; }
+@keyframes row-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Micro-interactions ---------- */
+.card { transition: box-shadow .3s ease, transform .3s var(--smooth); }
+.app-content .mobile-record-card:active { transform: scale(.985); }
+.btn { transition: transform .15s var(--spring), box-shadow .25s ease, filter .2s ease, background-color .2s; }
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) { transform: translateY(0) scale(.96); }
+.form-control { transition: border-color .2s, box-shadow .25s, background-color .2s; }
+.badge { transition: transform .2s var(--spring); }
+tr:hover .badge, .mobile-record-card:hover .badge { transform: scale(1.06); }
+.alert { animation: alert-in .5s var(--spring) backwards; }
+.alert.fade:not(.show) { transform: translateY(-6px) scale(.98); transition: opacity .2s, transform .2s; }
+@keyframes alert-in { from { opacity: 0; transform: translateY(-10px) scale(.97); } to { opacity: 1; transform: none; } }
+.user-chip, .theme-toggle, .hstat { transition: transform .2s var(--spring), box-shadow .2s; }
+.user-chip:hover, .hstat:hover { transform: translateY(-1px); }
+.page-actions .btn i, .sb-link i { transition: transform .25s var(--spring); }
+.page-actions .btn:hover i.fa-plus { transform: rotate(90deg); }
+
+/* Modal pop (bootstrap .fade/.show) */
+.glass-modal.fade .modal-dialog { transform: translateY(30px) scale(.94); opacity: 0; transition: transform .45s var(--spring), opacity .25s ease; }
+.glass-modal.show .modal-dialog { transform: none; opacity: 1; }
+.modal-backdrop.fade { transition: opacity .3s ease; }
+
+/* ---------- Logout: the app sinks away ---------- */
+html.is-leaving body > * { transition: opacity 1s ease .15s, transform 1.1s var(--smooth) .1s, filter 1s ease .15s; }
+html.is-leaving .app-main, html.is-leaving .sidebar, html.is-leaving .dock { opacity: 0; transform: scale(.94); filter: blur(8px); }
+html.is-leaving .sheet { transform: translateY(105%) !important; }
+html.is-leaving .sheet-backdrop { opacity: 0 !important; }
+
+/* ---------- Page-to-page transitions (supported browsers) ---------- */
+@view-transition { navigation: auto; }
+.sidebar { view-transition-name: sidebar; }
+.dock { view-transition-name: dock; }
+.topbar-right { view-transition-name: topbar; }
+::view-transition-old(root) { animation: vt-out .22s ease both; }
+::view-transition-new(root) { animation: vt-in .38s var(--smooth) both; }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
+/* The theme toggle drives its own circular reveal over the whole page */
+html.theme-vt .sidebar, html.theme-vt .dock, html.theme-vt .topbar-right { view-transition-name: none; }
+html.theme-vt::view-transition-old(root), html.theme-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; transform: none; }
+
+/* ==========================================================
+   Login polish: ambient light, 3D card entrance, button sheen
+   ========================================================== */
+.login-orbs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.login-orbs i {
+    position: absolute; width: 46vmax; height: 46vmax; border-radius: 50%; filter: blur(60px); opacity: .55;
+    will-change: transform; animation: orb-drift 18s ease-in-out infinite alternate;
+}
+.login-orbs i:nth-child(1) { background: radial-gradient(circle, rgba(99, 102, 241, .55), transparent 65%); top: -18vmax; left: -12vmax; }
+.login-orbs i:nth-child(2) { background: radial-gradient(circle, rgba(236, 72, 153, .4), transparent 65%); bottom: -20vmax; right: -14vmax; animation-duration: 22s; animation-delay: -6s; }
+.login-orbs i:nth-child(3) { background: radial-gradient(circle, rgba(20, 184, 166, .38), transparent 65%); top: 30%; left: 45%; width: 32vmax; height: 32vmax; animation-duration: 26s; animation-delay: -12s; }
+html[data-theme="dark"] .login-orbs i { opacity: .4; }
+@keyframes orb-drift { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(6vmax, 4vmax) scale(1.08); } 100% { transform: translate(-4vmax, 7vmax) scale(.95); } }
+.login-stage { position: relative; z-index: 1; }
+.login-theme-toggle { z-index: 2; }
+
+/* Card swings up in 3D, like a lock screen settling */
+@keyframes li-card-in {
+    0% { opacity: 0; transform: perspective(1200px) translateY(40px) rotateX(18deg) scale(1.04); filter: blur(12px); }
+    60% { opacity: 1; filter: blur(0); }
+    100% { opacity: 1; transform: none; filter: blur(0); }
+}
+.login-box .card.li-item { animation-duration: .95s; transform-origin: 50% 100%; }
+.lock-badge { position: relative; animation: badge-float 4s ease-in-out 1.2s infinite; }
+@keyframes badge-float { 50% { transform: translateY(-4px); } }
+
+.login-btn { position: relative; overflow: hidden; }
+.login-btn::after {
+    content: ""; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .35), transparent);
+    transform: skewX(-20deg); animation: sheen 3.2s ease-in-out 1.4s infinite;
+}
+@keyframes sheen { 0%, 70% { left: -60%; } 100% { left: 130%; } }
+
+/* Unlock: ring burst from the badge + a check that draws itself */
+html.is-unlocking .lock-badge::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; border: 2px solid rgba(255, 255, 255, .85);
+    animation: ring-out .6s ease-out forwards;
+}
+@keyframes ring-out { to { transform: scale(1.9); opacity: 0; } }
+.uw-check svg { width: 40px; height: 40px; }
+.uw-check path { fill: none; stroke: #fff; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 40; stroke-dashoffset: 40; }
+.unlock-welcome.show .uw-check { animation: pop-in .5s var(--spring) both; }
+.unlock-welcome.show .uw-check path { animation: draw-check .4s ease-out .2s forwards; }
+.unlock-welcome.show .uw-text { animation: rise-in .5s var(--smooth) .15s backwards; }
+@keyframes draw-check { to { stroke-dashoffset: 0; } }
+@keyframes pop-in { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ==========================================================
+   "Expense added" pop
+   ========================================================== */
+.expense-pop {
+    position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 16px;
+    background: rgba(15, 23, 42, 0); transition: background .3s ease; pointer-events: none;
+}
+.expense-pop.show { background: rgba(15, 23, 42, .28); }
+.expense-pop.hide { background: rgba(15, 23, 42, 0); }
+.ep-card {
+    position: relative; min-width: 240px; padding: 28px 30px 24px; border-radius: 26px; text-align: center;
+    background: var(--g-glass-strong); border: 1px solid var(--g-border); color: var(--g-text);
+    box-shadow: 0 30px 70px rgba(15, 23, 42, .25);
+    -webkit-backdrop-filter: blur(22px) saturate(180%); backdrop-filter: blur(22px) saturate(180%);
+    transform: scale(.4) translateY(30px); opacity: 0;
+    transition: transform .55s var(--spring), opacity .25s ease;
+}
+html[data-theme="dark"] .ep-card { background: rgba(15, 23, 42, .9); }
+.expense-pop.show .ep-card { transform: none; opacity: 1; }
+.expense-pop.hide .ep-card { transform: scale(.9) translateY(-20px); opacity: 0; transition: transform .3s ease, opacity .25s ease; }
+.ep-icon {
+    position: relative; width: 72px; height: 72px; margin: 0 auto 12px; border-radius: 22px; display: grid; place-items: center;
+    font-size: 28px; color: #fff; background: linear-gradient(135deg, var(--g-primary), #ec4899);
+    box-shadow: 0 14px 30px rgba(79, 70, 229, .4);
+}
+.expense-pop.show .ep-icon { animation: ep-wiggle .6s var(--spring) .15s; }
+.ep-badge {
+    position: absolute; right: -8px; bottom: -8px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 13px; background: #10b981; color: #fff; border: 3px solid var(--g-glass-strong);
+    transform: scale(0); transition: transform .4s var(--spring) .35s;
+}
+.expense-pop.show .ep-badge { transform: scale(1); }
+.ep-title { font-weight: 800; font-size: 1.05rem; color: #059669; }
+html[data-theme="dark"] .ep-title { color: #34d399; }
+.ep-amount { font-size: 1.9rem; font-weight: 800; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+.ep-name { color: var(--g-muted); font-size: 13.5px; max-width: 260px; margin: 0 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ep-burst { position: absolute; left: 50%; top: 64px; width: 0; height: 0; }
+.ep-burst i { position: absolute; width: 8px; height: 8px; margin: -4px; border-radius: 50%; opacity: 0; background: var(--c, #6366f1); }
+.expense-pop.show .ep-burst i { animation: ep-burst .75s cubic-bezier(.15, .7, .3, 1) .1s forwards; }
+.ep-burst i:nth-child(1) { --a: 0deg; --c: #6366f1; } .ep-burst i:nth-child(2) { --a: 33deg; --c: #ec4899; }
+.ep-burst i:nth-child(3) { --a: 66deg; --c: #10b981; } .ep-burst i:nth-child(4) { --a: 99deg; --c: #f59e0b; }
+.ep-burst i:nth-child(5) { --a: 132deg; --c: #0ea5e9; } .ep-burst i:nth-child(6) { --a: 165deg; --c: #8b5cf6; }
+.ep-burst i:nth-child(7) { --a: 198deg; --c: #ec4899; } .ep-burst i:nth-child(8) { --a: 231deg; --c: #10b981; }
+.ep-burst i:nth-child(9) { --a: 264deg; --c: #f59e0b; } .ep-burst i:nth-child(10) { --a: 297deg; --c: #6366f1; }
+.ep-burst i:nth-child(11) { --a: 330deg; --c: #0ea5e9; }
+@keyframes ep-burst { 0% { opacity: 1; transform: rotate(var(--a)) translateY(0) scale(.4); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-78px) scale(1); } }
+@keyframes ep-wiggle { 0%, 100% { transform: none; } 30% { transform: rotate(-10deg) scale(1.08); } 60% { transform: rotate(8deg) scale(1.04); } }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; }
+    .li-item { opacity: 1; transform: none; filter: none; }
+    .login-orbs i, .lock-badge, .login-btn::after { animation: none !important; }
+    @view-transition { navigation: none; }
+}
