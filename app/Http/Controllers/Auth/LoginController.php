@@ -37,7 +37,7 @@ class LoginController extends Controller
         ]);
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
-            return back()->withErrors(['email' => 'Invalid login credentials.'])->onlyInput('email');
+            return $this->failed($request, 'Invalid login credentials.');
         }
 
         $request->session()->regenerate();
@@ -47,10 +47,39 @@ class LoginController extends Controller
             $request->session()->invalidate();
             $request->session()->regenerateToken();
 
-            return back()->withErrors(['email' => 'Your account is inactive. Please contact admin.'])->onlyInput('email');
+            return $this->failed($request, 'Your account is inactive. Please contact admin.');
         }
 
-        return redirect()->intended($request->user()->isAdmin() ? route('admin.dashboard') : route('employee.dashboard'));
+        $target = $this->homeAfterLogin($request);
+
+        // The login page submits via AJAX so it can play the unlock animation before navigating.
+        if ($request->expectsJson()) {
+            return response()->json(['redirect' => $target, 'name' => $request->user()->name]);
+        }
+
+        return redirect()->to($target);
+    }
+
+    private function failed(Request $request, string $message)
+    {
+        return $request->expectsJson()
+            ? response()->json(['message' => $message, 'errors' => ['email' => [$message]]], 422)
+            : back()->withErrors(['email' => $message])->onlyInput('email');
+    }
+
+    /**
+     * Send the user back to the page they originally asked for, but only when it belongs
+     * to their own area. Otherwise (e.g. an admin URL left in the session from a previous
+     * user on this browser) go to their dashboard instead of a 403 page.
+     */
+    private function homeAfterLogin(Request $request): string
+    {
+        $isAdmin = $request->user()->isAdmin();
+        $home = $isAdmin ? route('admin.dashboard') : route('employee.dashboard');
+        $intended = $request->session()->pull('url.intended');
+        $area = rtrim(url($isAdmin ? 'admin' : 'employee'), '/').'/';
+
+        return is_string($intended) && str_starts_with($intended, $area) ? $intended : $home;
     }
 
     public function logout(Request $request)

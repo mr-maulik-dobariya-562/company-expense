@@ -7,10 +7,12 @@ use App\Http\Controllers\Admin\MonthlyFundController as AdminMonthlyFundControll
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
 use App\Http\Controllers\Admin\SettlementController as AdminSettlementController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HeaderStatsController;
 use App\Http\Controllers\Employee\DashboardController as EmployeeDashboardController;
 use App\Http\Controllers\Employee\ExpenseController as EmployeeExpenseController;
 use App\Http\Controllers\Employee\PaymentController as EmployeePaymentController;
 use App\Http\Controllers\Employee\SettlementController as EmployeeSettlementController;
+use App\Http\Controllers\Employee\UpiController as EmployeeUpiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +41,7 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->middleware('auth')->name('logout');
 Route::view('/offline', 'offline')->name('offline');
+Route::get('/header-stats', HeaderStatsController::class)->middleware(['auth', 'active'])->name('header-stats');
 
 Route::middleware(['auth', 'active', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
@@ -60,4 +63,5 @@ Route::middleware(['auth', 'active', 'role:employee'])->prefix('employee')->name
     Route::resource('/expenses', EmployeeExpenseController::class);
     Route::get('/settlements', [EmployeeSettlementController::class, 'index'])->name('settlements.index');
     Route::get('/payments', [EmployeePaymentController::class, 'index'])->name('payments.index');
+    Route::patch('/upi', [EmployeeUpiController::class, 'update'])->name('upi.update');
 });
