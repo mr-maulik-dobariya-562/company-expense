@@ -69,13 +69,37 @@
     var dock = document.getElementById('dock');
     var indicator = document.getElementById('dockIndicator');
 
+    // The indicator is a compact pill centred behind the active tab's icon
+    var PILL_W = 54;
     function moveIndicator(item, animate) {
         if (!dock || !indicator || !item) return;
         if (!animate) indicator.style.transition = 'none';
-        indicator.style.width = item.offsetWidth + 'px';
-        indicator.style.transform = 'translateX(' + item.offsetLeft + 'px)';
+        indicator.style.width = PILL_W + 'px';
+        indicator.style.transform = 'translateX(' + (item.offsetLeft + (item.offsetWidth - PILL_W) / 2) + 'px)';
         indicator.classList.add('ready');
+        if (animate) {
+            item.classList.remove('bump');
+            void item.offsetWidth;
+            item.classList.add('bump');
+        }
         if (!animate) { void indicator.offsetWidth; indicator.style.transition = ''; }
+    }
+
+    // Dock tucks away while scrolling down and slides back when scrolling up
+    if (dock) {
+        var lastY = window.scrollY, ticking = false;
+        window.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function () {
+                var y = window.scrollY, dy = y - lastY;
+                var nearBottom = window.innerHeight + y >= document.documentElement.scrollHeight - 40;
+                if (dy > 8 && y > 120 && !nearBottom) dock.classList.add('dock-hidden');
+                else if (dy < -8 || y < 60 || nearBottom) dock.classList.remove('dock-hidden');
+                if (Math.abs(dy) > 8) lastY = y;
+                ticking = false;
+            });
+        }, { passive: true });
     }
 
     if (dock) {
@@ -105,18 +129,45 @@
         });
     }
 
-    /* ---------- Logout: play the exit animation, then submit ---------- */
+    /* ---------- Logout: confirm first, then sound + exit animation, then submit ---------- */
+    var pendingLogout = null;
+    var $logoutModal = window.jQuery ? jQuery('#logoutModal') : null;
+
+    function leave(f) {
+        if (f.dataset.leaving) return;
+        f.dataset.leaving = '1';
+        if (window.SFX) SFX.play('lock');
+        if (!reduceMotion) root.classList.add('is-leaving');
+        // The lock sound is ~1.5s; submit when it ends so it isn't cut off
+        setTimeout(function () { f.submit(); }, 1500);
+    }
+
     document.querySelectorAll('form[data-logout]').forEach(function (f) {
         f.addEventListener('submit', function (e) {
-            if (f.dataset.leaving) return;
             e.preventDefault();
-            f.dataset.leaving = '1';
-            if (window.SFX) SFX.play('lock');
-            if (!reduceMotion) root.classList.add('is-leaving');
-            // The lock sound is ~1.5s; submit when it ends so it isn't cut off
-            setTimeout(function () { f.submit(); }, 1500);
+            if (f.dataset.leaving) return;
+            if (!$logoutModal || !$logoutModal.length) { leave(f); return; }
+            pendingLogout = f;
+            var sheetEl = document.getElementById('moreSheet');
+            if (sheetEl && sheetEl.classList.contains('open')) closeSheet();
+            $logoutModal.modal('show');
         });
     });
+
+    if ($logoutModal && $logoutModal.length) {
+        $logoutModal.on('shown.bs.modal', function () { document.getElementById('logoutConfirm').focus(); });
+        document.getElementById('logoutConfirm').addEventListener('click', function () {
+            if (!pendingLogout) return;
+            var f = pendingLogout;
+            this.disabled = true;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Logging out…';
+            $logoutModal.modal('hide');
+            leave(f);
+        });
+        $logoutModal.on('hidden.bs.modal', function () {
+            if (pendingLogout && !pendingLogout.dataset.leaving) pendingLogout = null;
+        });
+    }
 
     /* ---------- Stat numbers count up on page load ---------- */
     if (!reduceMotion) {

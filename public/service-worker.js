@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rd-expense-v11';
+const CACHE_NAME = 'rd-expense-v12';
 const OFFLINE_URL = '/offline';
 const STATIC_ASSETS = [
   OFFLINE_URL,

@@ -119,6 +119,27 @@
 
 @include('layouts.partials.mobile-bottom-nav', ['menu' => $menu, 'isActive' => $isActive])
 
+{{-- Logout confirmation (opened by any form[data-logout]) --}}
+<div class="modal fade glass-modal logout-modal" id="logoutModal" tabindex="-1" aria-labelledby="logoutTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="lo-body">
+                <div class="lo-icon" aria-hidden="true"><i class="fas fa-sign-out-alt"></i></div>
+                <h5 class="lo-title" id="logoutTitle">Log out?</h5>
+                <p class="lo-text">You'll need to sign in again to use your account on this device.</p>
+                <div class="lo-user">
+                    <span class="avatar">{{ strtoupper(mb_substr($user->name, 0, 1)) }}</span>
+                    <div class="min-w-0"><div class="font-weight-bold text-truncate">{{ $user->name }}</div><div class="small text-muted text-truncate">{{ $user->email }}</div></div>
+                </div>
+            </div>
+            <div class="lo-actions">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="logoutConfirm"><i class="fas fa-sign-out-alt mr-1"></i> Log out</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ asset('js/sfx.js') }}"></script>
